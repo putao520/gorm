@@ -190,6 +190,10 @@ func (m Migrator) AutoMigrate(values ...interface{}) error {
 func (m Migrator) GetTables() (tableList []string, err error) {
 	err = m.DB.Raw("SELECT TABLE_NAME FROM information_schema.tables where TABLE_SCHEMA=?", m.CurrentDatabase()).
 		Scan(&tableList).Error
+	if err != nil {
+		// for clickhouse
+		err = m.DB.Raw("SELECT name FROM system.tables where database=?", m.CurrentDatabase()).Scan(&tableList).Error
+	}
 	return
 }
 
